@@ -1,8 +1,14 @@
+# private scope which doesn't change in runtime 
+
+locals {
+  ec2_key_name = var.env == "dev" ? "terra-automate-key" : "terra-automate-key-prod"
+}
+
 # Key Value pair
 
 resource aws_key_pair my_key_pair {
 
-key_name="terra-automate-key-josh"
+key_name=local.ec2_key_name
 public_key=file("terra-automate-key.pub")
 } 
 
@@ -64,16 +70,16 @@ resource aws_instance my_instance {
 	
 	# root storage (EBS)
 	root_block_device {
-		volume_size = 10
+		volume_size = var.ec2_volume_size
 		volume_type = "gp3"
 	}
 
 	tags = {
-    Name = "terra-automate-server"
+    Name = var.ec2_instance_name
   }
 }
 
 resource "aws_ec2_instance_state" "my_instance_state" {
   instance_id = aws_instance.my_instance.id
-  state = "stopped"
+  state = var.ec2_instance_state
 }

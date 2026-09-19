@@ -1,7 +1,7 @@
-.terraform/
+# Local .terraform directories
+**/.terraform/*
 
-terraform.tfstate
-
+# .tfstate files
+*.tfstate
+*.tfstate.*
 terra-automate-key
-
-terra-automate-key.pub
