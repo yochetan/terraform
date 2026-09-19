@@ -1,0 +1,7 @@
+.terraform/
+
+terraform.tfstate
+
+terra-automate-key
+
+terra-automate-key.pub
