@@ -28,26 +28,26 @@ Resource counts per environment are defined in a lookup map (in `variables.tf` o
 ```hcl
 locals {
   env_config = {
-    dev = { ec2_count = 2, s3_count = 1, dynamodb_count = 1 }
-    stg = { ec2_count = 3, s3_count = 1, dynamodb_count = 1 }
-    prd = { ec2_count = 4, s3_count = 2, dynamodb_count = 2 }
+    dev = { instance_count = 2, bucket_count = 1, dynamo_count = 1 }
+    stg = { instance_count = 3, bucket_count = 1, dynamo_count = 1 }
+    prd = { instance_count = 4, bucket_count = 2, dynamo_count = 2 }
   }
 
-  config = local.env_config[var.environment]
+  current = lookup(local.env, terraform.workspace, local.env["dev"])
 }
 ```
 
 Resources then use `count` to scale up or down automatically:
 
 ```hcl
-resource "aws_instance" "app" {
-  count         = local.config.ec2_count
-  ami           = var.ami_id
-  instance_type = var.instance_type
+resource aws_instance my_instance {
+  count = var.ec2_instance_count
+	ami = var.ec2_ami_id 
+	instance_type = var.ec2_instance_type 
 
-  tags = {
-    Name        = "app-${var.environment}-${count.index}"
-    Environment = var.environment
+	tags = {
+    Name = "${var.env}-${var.ec2_instance_name}"
+    Environment = var.env
   }
 }
 ```
@@ -73,28 +73,27 @@ The same pattern applies to the `aws_s3_bucket` and `aws_dynamodb_table` resourc
    terraform init
    ```
 
-3. Select the environment you want to deploy by setting the `environment` variable:
+3. Select the environment you want to deploy by setting the `env` variable:
    ```bash
-   terraform plan -var="environment=dev"
-   terraform apply -var="environment=dev"
+   terraform plan -var="env=dev"
+   terraform apply -var="env=dev"
    ```
    Swap `dev` for `stg` or `prd` to provision the other environments.
 
 4. Destroy resources for an environment when no longer needed:
    ```bash
-   terraform destroy -var="environment=dev"
+   terraform destroy -var="env=dev"
    ```
 
 ## Variables
 
 | Name          | Description                          | Type   | Default |
 |---------------|---------------------------------------|--------|---------|
-| `environment` | Target environment (`dev`, `stg`, `prd`) | string | `dev`   |
-| `region`      | AWS region to deploy into            | string | `us-east-1` |
+| `env` | Target environment (`dev`, `stg`, `prd`) | string | `dev`   |
+| `region`      | AWS region to deploy into            | string | `us-east-2` |
 | `ami_id`      | AMI ID used for EC2 instances        | string | —       |
-| `instance_type` | EC2 instance type                  | string | `t2.micro` |
+| `instance_type` | EC2 instance type                  | string | `t3.micro` |
 
-*(Update this table to match the actual variables defined in `variables.tf`.)*
 
 ## Outputs
 
@@ -106,7 +105,7 @@ The same pattern applies to the `aws_s3_bucket` and `aws_dynamodb_table` resourc
 
 ## Notes
 
-- Each environment is isolated by the `environment` variable — no resources are shared across environments.
+- Each environment is isolated by the `env` variable — no resources are shared across environments.
 - Resource counts are centrally defined, so adding a new environment or changing scale only requires updating one lookup map.
 - Consider using separate remote state files (or workspaces) per environment to avoid state collisions between `dev`, `stg`, and `prd`.
 
