@@ -90,7 +90,7 @@ The same pattern applies to the `aws_s3_bucket` and `aws_dynamodb_table` resourc
 | Name          | Description                          | Type   | Default |
 |---------------|---------------------------------------|--------|---------|
 | `env` | Target environment (`dev`, `stg`, `prd`) | string | `dev`   |
-| `region`      | AWS region to deploy into            | string | `us-east-2` |
+| `region`      | AWS region to deploy into            | string | `us-west-2` |
 | `ami_id`      | AMI ID used for EC2 instances        | string | —       |
 | `instance_type` | EC2 instance type                  | string | `t3.micro` |
 
