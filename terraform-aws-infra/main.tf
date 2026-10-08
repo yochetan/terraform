@@ -122,7 +122,7 @@ data "aws_availability_zones" "available" {
 
 resource "aws_instance" "main" {
   ami                         = data.aws_ami.amazon_linux.id
-  instance_type = var.environment == "prod" ? "t3.small" : "t2.micro"
+  instance_type = var.environment == "prod" ? "t3.small" : "t3.micro"
   subnet_id                   = aws_subnet.main.id
   vpc_security_group_ids      = [aws_security_group.main.id]
   associate_public_ip_address = true
@@ -141,7 +141,7 @@ resource "aws_instance" "main" {
 }
 
 resource "aws_s3_bucket" "app_logs" {
-  bucket     = "${var.project_name}-app-logs-2026"
+  bucket     = "${var.project_name}-app-logs-2026-chetan"
   depends_on = [aws_instance.main]
 
   tags = merge(
@@ -151,4 +151,8 @@ resource "aws_s3_bucket" "app_logs" {
       Name = "${local.name_prefix}-app-logs"
     }
   )
+}
+
+resource "aws_s3_bucket" "logs_bucket" {
+  bucket = "terraweek-import-test-chetan"
 }
